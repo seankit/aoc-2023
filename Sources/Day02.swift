@@ -58,11 +58,6 @@ protocol ComputesPower {
 struct Game {
     let id: Int
     let rounds: [Round]
-    
-    init(id: Int, rounds: [Round]) {
-        self.id = id
-        self.rounds = rounds
-    }
 }
 
 extension Game: Validating {
@@ -73,41 +68,76 @@ extension Game: Validating {
 
 extension Game: ComputesPower {
     var power: Int {
-        let red = rounds.max(by: { $0.red ?? 0 < $1.red ?? 0 })?.red ?? 1
-        let blue = rounds.max(by: { $0.blue ?? 0 < $1.blue ?? 0 })?.blue ?? 1
-        let green = rounds.max(by: { $0.green ?? 0 < $1.green ?? 0 })?.green ?? 1
+        var red: Int = 0
+        var blue: Int = 0
+        var green: Int = 0
+        
+        for round in rounds {
+            for block in round.revealedCubes {
+                switch block {
+                case .red(let amount):
+                    red = max(red, amount)
+                case .blue(let amount):
+                    blue = max(blue, amount)
+                case .green(let amount):
+                    green = max(green, amount)
+                case .unknown:
+                    continue
+                }
+            }
+        }
         return red * blue * green
+    }
+}
+
+// MARK: ColorBlock
+
+enum ColorBlock {
+    case red(Int)
+    case blue(Int)
+    case green(Int)
+    case unknown
+    
+    static func fromString(_ component: Substring) -> ColorBlock {
+        let parts = component.split(separator: " ")
+        guard let value = Int("\(parts[0])") else { return .unknown }
+        
+        return switch parts.last {
+        case "red":
+            .red(value)
+        case "blue":
+            .blue(value)
+        case "green":
+            .green(value)
+        default:
+            .unknown
+        }
     }
 }
 
 // MARK: Round
 
 struct Round {
-    let red: Int?
-    let blue: Int?
-    let green: Int?
+    let revealedCubes: [ColorBlock]
     
     init(roundString: Substring) {
-        var map: [Substring: Int] = [:]
-        let components = roundString.split(separator: ",")
-        for component in components {
-            let parts = component.split(separator: " ")
-            map[parts[1]] = Int("\(parts[0])")
-        }
-        self.init(red: map["red"], blue: map["blue"], green: map["green"])
-    }
-
-    init(red: Int?, blue: Int?, green: Int?) {
-        self.red = red
-        self.blue = blue
-        self.green = green
+        revealedCubes = roundString.split(separator: ",").map { ColorBlock.fromString($0) }
     }
 }
 
 extension Round: Validating {
     var isValid: Bool {
-        red ?? 0 <= ValidatingMax.red.rawValue
-            && blue ?? 0 <= ValidatingMax.blue.rawValue
-            && green ?? 0 <= ValidatingMax.green.rawValue
+        revealedCubes.allSatisfy { block in
+            return switch block {
+            case .red(let amount):
+                amount <= ValidatingMax.red.rawValue
+            case .blue(let amount):
+                amount <= ValidatingMax.blue.rawValue
+            case .green(let amount):
+                amount <= ValidatingMax.green.rawValue
+            case .unknown:
+                false
+            }
+        }
     }
 }
