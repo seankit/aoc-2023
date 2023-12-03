@@ -21,45 +21,36 @@ struct Day03: AdventDay {
     private let symbolSet: Set<Character> = ["#", "=", "+", "/", "$", "*", "&", "-", "%", "@"]
 
     func part1() -> Any {
-        var grid = grid
-        
-        let numRows = grid.count
-        let numColumns = grid[0].count
-        
         var partNumbers: [Int] = []
-        for row in 0..<numRows {
-            for column in 0..<numColumns {
-                guard symbolSet.contains(grid[row][column]) else { continue }
-                
-                for coordinate in coordinates {
-                    guard row + coordinate.row >= 0, row + coordinate.row <= numRows - 1,
-                          column + coordinate.column >= 0, column + coordinate.column < numColumns - 1,
-                          grid[row + coordinate.row][column + coordinate.column].isNumber else { continue }
-                    
-                    let numberRange = numberRange(in: grid[row + coordinate.row], at: column + coordinate.column)
-                    let number = Array(grid[row + coordinate.row][numberRange]).map { String($0) }.joined()
-                    guard let partNumber = Int(number) else { continue }
-                    
-                    let replacement: [Character] = numberRange.map { _ in "." }
-                    grid[row + coordinate.row].replaceSubrange(numberRange, with: replacement)
-                    partNumbers.append(partNumber)
-                }
-            }
+        findAdjacentValues(of: symbolSet) { adjacent in
+            partNumbers.append(contentsOf: adjacent)
         }
-
+        
         return partNumbers.reduce(0, +)
     }
     
     func part2() -> Any {
+        let star = Set<Character>("*")
+        var gearRatios: [Int] = []
+        findAdjacentValues(of: star) { adjacent in
+            guard adjacent.count == 2 else { return }
+            gearRatios.append(adjacent.reduce(1, *))
+        }
+        
+        return gearRatios.reduce(0, +)
+    }
+    
+    // MARK: Private
+    
+    private func findAdjacentValues(of: Set<Character>, foundAdjacent: @escaping ([Int]) -> Void) {
         var grid = grid
-
+        
         let numRows = grid.count
         let numColumns = grid[0].count
-                
-        var gearRatios: [Int] = []
+        
         for row in 0..<numRows {
             for column in 0..<numColumns {
-                guard grid[row][column] == "*" else { continue }
+                guard symbolSet.contains(grid[row][column]) else { continue }
                 
                 var adjacent: [Int] = []
                 for coordinate in coordinates {
@@ -73,13 +64,12 @@ struct Day03: AdventDay {
                     
                     let replacement: [Character] = numberRange.map { _ in "." }
                     grid[row + coordinate.row].replaceSubrange(numberRange, with: replacement)
+                    
                     adjacent.append(partNumber)
                 }
-                guard adjacent.count == 2 else { continue }
-                gearRatios.append(adjacent.reduce(1, *))
+                foundAdjacent(adjacent)
             }
         }
-        return gearRatios.reduce(0, +)
     }
     
     private func numberRange(in row: [Character], at column: Int) -> ClosedRange<Int> {
