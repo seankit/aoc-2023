@@ -15,14 +15,15 @@ struct Day03: AdventDay {
     }
     
     private let coordinates = [(row: -1, column: -1), (row: 0, column: -1), (row: 1, column: -1),
-                       (row: -1, column: 0), (row: 1, column: 0),
-                       (row: -1, column: 1), (row: 0, column: 1), (row: 1, column: 1)]
+                               (row: -1, column: 0), (row: 1, column: 0),
+                               (row: -1, column: 1), (row: 0, column: 1), (row: 1, column: 1)]
     
-    private let symbolSet: Set<Character> = ["#", "=", "+", "/", "$", "*", "&", "-", "%", "@"]
+    private let symbols: Set<Character> = ["#", "=", "+", "/", "$", "*", "&", "-", "%", "@"]
+    private let star: Set<Character> = ["*"]
 
     func part1() -> Any {
         var partNumbers: [Int] = []
-        findAdjacentValues(of: symbolSet) { adjacent in
+        findAdjacentValues(of: symbols) { adjacent in
             partNumbers.append(contentsOf: adjacent)
         }
         
@@ -30,7 +31,6 @@ struct Day03: AdventDay {
     }
     
     func part2() -> Any {
-        let star = Set<Character>("*")
         var gearRatios: [Int] = []
         findAdjacentValues(of: star) { adjacent in
             guard adjacent.count == 2 else { return }
@@ -42,7 +42,7 @@ struct Day03: AdventDay {
     
     // MARK: Private
     
-    private func findAdjacentValues(of: Set<Character>, foundAdjacent: @escaping ([Int]) -> Void) {
+    private func findAdjacentValues(of set: Set<Character>, found: @escaping ([Int]) -> Void) {
         var grid = grid
         
         let numRows = grid.count
@@ -50,7 +50,7 @@ struct Day03: AdventDay {
         
         for row in 0..<numRows {
             for column in 0..<numColumns {
-                guard symbolSet.contains(grid[row][column]) else { continue }
+                guard set.contains(grid[row][column]) else { continue }
                 
                 var adjacent: [Int] = []
                 for coordinate in coordinates {
@@ -67,7 +67,7 @@ struct Day03: AdventDay {
                     
                     adjacent.append(partNumber)
                 }
-                foundAdjacent(adjacent)
+                found(adjacent)
             }
         }
     }

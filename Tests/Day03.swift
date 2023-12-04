@@ -9,7 +9,7 @@ import Foundation
 import XCTest
 @testable import AdventOfCode
 
-final class Day03Test: XCTestCase {
+final class Day03Tests: XCTestCase {
     
     let testData = """
         467..114..
