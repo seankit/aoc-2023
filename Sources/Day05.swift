@@ -45,36 +45,43 @@ struct Day05: AdventDay {
     }
     
     func part1() -> Any {
-        return seeds.compactMap { site(for: $0, mapIndex: 0) }.min() ?? 0
+        return seeds.compactMap { location(for: $0, mapIndex: 0) }.min() ?? 0
     }
     
     func part2() -> Any {
+        // the list of associated locations for the seeds within the range is componsed of several monotonically increasing segments.
+        // Using a modified binary search, identify which segment contains the lowest location, and converge to the first value of that segment.
         var best: Int = .max
         for range in seedRanges {
             var left = range.lowerBound
             var right = range.upperBound
             
-            var lowest: Int = .max
             while left < right {
                 let seed = (left + right) / 2
-                let site = site(for: seed, mapIndex: 0)
-                if site < lowest {
-                    lowest = site
-                    right = seed - 1
-                } else {
+                let midLocation = location(for: seed, mapIndex: 0)
+                let rightLocation = location(for: right, mapIndex: 0)
+                
+                if midLocation > rightLocation {
+                    // lowest location is in the right part of list
                     left = seed + 1
+                } else {
+                    // lowest location is in the left part of the array, or is the mid element
+                    right = seed
                 }
             }
+            
+            // determine if this range's lowest location is lowest out of all seed ranges
+            let lowest = location(for: left, mapIndex: 0)
             best = min(best, lowest)
         }
         return best
     }
     
-    private func site(for value: Int, mapIndex: Int) -> Int {
+    private func location(for value: Int, mapIndex: Int) -> Int {
         guard let range = maps[mapIndex].filter({ $0.key.contains(value) }).first,
               range.key.contains(value)
         else {
-            return mapIndex == maps.count - 1 ? value : site(for: value, mapIndex: mapIndex + 1)
+            return mapIndex == maps.count - 1 ? value : location(for: value, mapIndex: mapIndex + 1)
         }
 
         let sourceRange = range.key
@@ -83,6 +90,6 @@ struct Day05: AdventDay {
         let destinationRange = range.value
         let destinationValue = destinationRange.lowerBound + difference
         
-        return mapIndex == maps.count - 1 ? destinationValue : site(for: destinationValue, mapIndex: mapIndex + 1)
+        return mapIndex == maps.count - 1 ? destinationValue : location(for: destinationValue, mapIndex: mapIndex + 1)
     }
 }
