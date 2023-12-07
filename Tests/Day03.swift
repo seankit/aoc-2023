@@ -1,5 +1,6 @@
 import Foundation
 import XCTest
+
 @testable import AdventOfCode
 
 final class Day03Tests: XCTestCase {

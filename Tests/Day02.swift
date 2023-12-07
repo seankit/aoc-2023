@@ -1,5 +1,6 @@
 import Foundation
 import XCTest
+
 @testable import AdventOfCode
 
 final class Day02Tests: XCTestCase {
@@ -21,4 +22,5 @@ final class Day02Tests: XCTestCase {
     let challenge = Day02(data: testData)
     XCTAssertEqual(String(describing: challenge.part2()), "2286")
   }
+
 }

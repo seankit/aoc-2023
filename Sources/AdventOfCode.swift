@@ -19,10 +19,10 @@ struct AdventOfCode: AsyncParsableCommand {
 
   @Flag(help: "Benchmark the time taken by the solution")
   var benchmark: Bool = false
-  
+
   @Option(help: "The day of the challenge to fetch input and generate source and test files.")
   var setupDay: Int?
-  
+
   @Option(help: "Your advent of code session token.")
   var sessionToken: String?
 
@@ -71,14 +71,14 @@ struct AdventOfCode: AsyncParsableCommand {
     } else {
       let challenge = try selectedChallenge
       print("Executing Advent of Code challenge \(challenge.day)...")
-      
+
       let timing1 = await run(part: challenge.part1, named: "Part 1")
       let timing2 = await run(part: challenge.part2, named: "Part 2")
-      
+
       if benchmark {
         print("Part 1 took \(timing1), part 2 took \(timing2).")
         #if DEBUG
-        print("Looks like you're benchmarking debug code. Try swift run -c release")
+          print("Looks like you're benchmarking debug code. Try swift run -c release")
         #endif
       }
     }

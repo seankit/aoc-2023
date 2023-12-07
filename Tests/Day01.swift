@@ -1,5 +1,6 @@
 import Foundation
 import XCTest
+
 @testable import AdventOfCode
 
 final class Day01Tests: XCTestCase {
@@ -10,7 +11,7 @@ final class Day01Tests: XCTestCase {
     a1b2c3d4e5f
     treb7uchet
     """
-  
+
   let testDataPart2 = """
     two1nine
     eightwothree
