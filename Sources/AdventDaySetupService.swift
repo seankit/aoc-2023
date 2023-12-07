@@ -25,18 +25,25 @@ struct AdventDaySetupService {
   }
   
   func generateFiles() async throws {
-    createSourceFile()
-    try await createTestFile()
     try await createInputFile()
+    let answers = try await createTestFile()
+    createSourceFile(answers: answers)
   }
   
-  func createSourceFile() {
+  func createSourceFile(answers: [String]?) {
     let sourceFilePath = FileManager.default.currentDirectoryPath + "/Sources/\(dayString).swift"
     
     guard !validFileAlreadyExists(atPath: sourceFilePath) else {
       print("\(dayString) source file already exists.")
       return
     }
+    
+    let part2 = answers?.count == 2 ? """
+        
+          func part2() -> Any {
+            return \(answers?.last ?? "0")
+          }
+        """ : ""
     
     let fileContent = Data(
         """
@@ -46,12 +53,9 @@ struct AdventDaySetupService {
           var lines: [Substring] { data.split(whereSeparator: \\.isNewline) }
             
           func part1() -> Any {
-            return 0
+            return \(answers?.first ?? "0")
           }
-        
-          func part2() -> Any {
-            return 0
-          }
+          \(part2)
         }
         """.utf8)
     
@@ -75,12 +79,12 @@ struct AdventDaySetupService {
     print("\(dayString) input file created.")
   }
   
-  func createTestFile() async throws {
+  func createTestFile() async throws -> [String]? {
     let testFilePath = FileManager.default.currentDirectoryPath + "/Tests/\(dayString).swift"
     
     guard !validFileAlreadyExists(atPath: testFilePath) else {
       print("\(dayString) test file already exists.")
-      return
+      return nil
     }
     
     let url = URL(string: "http://www.adventofcode.com/2023/day/\(day)")!
@@ -92,12 +96,20 @@ struct AdventDaySetupService {
     
     FileManager.default.createFile(atPath: testFilePath, contents: fileContent)
     print("\(dayString) test file created.")
+    return puzzleExample?.answers
   }
   
   func generateTestFileContent(from example: PuzzleExample?) -> Data {
-    let part1Answer = example?.answers?.first ?? "0"
-    let part2Answer = example?.answers?.last ?? "0"
+    let answer = example?.answers?.first
 
+    let part2 = example?.answers?.count == 2 ? """
+        
+          func testPart2() {
+            let challenge = \(dayString)(data: testData)
+            XCTAssertEqual(String(describing: challenge.part2()), \"\(example?.answers?.last ?? "0")\")
+          }
+        """ : ""
+    
     return Data(
       """
       import Foundation
@@ -111,13 +123,9 @@ struct AdventDaySetupService {
       
         func testPart1() {
           let challenge = \(dayString)(data: testData)
-          XCTAssertEqual(String(describing: challenge.part1()), \"\(part1Answer)\")
+          XCTAssertEqual(String(describing: challenge.part1()), \"\(answer ?? "0")\")
         }
-      
-        func testPart2() {
-          let challenge = \(dayString)(data: testData)
-          XCTAssertEqual(String(describing: challenge.part2()), \"\(part2Answer)\")
-        }
+        \(part2)
       }
       """.utf8)
   }
