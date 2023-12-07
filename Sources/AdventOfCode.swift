@@ -9,6 +9,7 @@ let allChallenges: [any AdventDay] = [
   Day04(),
   Day05(),
   Day06(),
+  Day07(),
 ]
 
 @main
@@ -21,6 +22,9 @@ struct AdventOfCode: AsyncParsableCommand {
   
   @Option(help: "The day of the challenge to fetch input and generate source and test files.")
   var setupDay: Int?
+  
+  @Option(help: "Your advent of code session token.")
+  var sessionToken: String?
 
   /// The selected day, or the latest day if no selection is provided.
   var selectedChallenge: any AdventDay {
@@ -61,8 +65,8 @@ struct AdventOfCode: AsyncParsableCommand {
   }
 
   func run() async throws {
-    if let setupDay {
-      let setupService = AdventDaySetupService(day: setupDay, sessionToken: "53616c7465645f5fb7583662b957c7c01bb0b15d7870992ad81993e6c0f197ee476a10582998ece103a6f6d6be073f5781aee20e91c5c7a1ca952653f1469ae3")
+    if let setupDay, let sessionToken {
+      let setupService = AdventDaySetupService(day: setupDay, sessionToken: sessionToken)
       try await setupService.generateFiles()
     } else {
       let challenge = try selectedChallenge
