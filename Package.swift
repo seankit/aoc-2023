@@ -5,6 +5,8 @@ let dependencies: [Target.Dependency] = [
     .product(name: "Algorithms", package: "swift-algorithms"),
     .product(name: "Collections", package: "swift-collections"),
     .product(name: "ArgumentParser", package: "swift-argument-parser"),
+    .product(name: "SwiftSyntax", package: "swift-syntax"),
+    .product(name: "SwiftSyntaxBuilder", package: "swift-syntax")
 ]
 
 let package = Package(
@@ -22,7 +24,10 @@ let package = Package(
             .upToNextMajor(from: "1.2.0")),
         .package(
             url: "https://github.com/apple/swift-format.git",
-            .upToNextMajor(from: "509.0.0"))
+            .upToNextMajor(from: "509.0.0")),
+        .package(
+            url: "https://github.com/apple/swift-syntax.git",
+            .upToNextMajor(from: "509.0.2")),
     ],
     targets: [
         .executableTarget(
