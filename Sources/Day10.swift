@@ -1,5 +1,5 @@
 
-typealias Coordinate = (row: Int, column: Int)
+fileprivate typealias Coordinate = (row: Int, column: Int)
 
 struct Day10: AdventDay {
   let data: String
@@ -32,7 +32,7 @@ struct Day10: AdventDay {
     "S": [.north, .south, .east, .west]
   ]
   
-  let directionCoordinateMap: [Direction: Coordinate] = [
+  private let directionCoordinateMap: [Direction: Coordinate] = [
     .north: (-1, 0),
     .south: (1, 0),
     .east: (0, 1),
